@@ -1,0 +1,9 @@
+# Benchmark "examples/eqn4" written by ABC on Wed May  4 16:43:42 2016
+.model examples/eqn4
+.inputs a b c
+.outputs o
+.names a b f1
+11 1
+.names f1 c o
+11 1
+.end

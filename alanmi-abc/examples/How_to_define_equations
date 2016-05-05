@@ -1,0 +1,71 @@
+-----------   A B C ---------------------
+
+EQN format (ABC):
+			
+   INORDER = List of inputs
+   OUTORDER = List of outputs
+   * = AND
+   + = OR
+   ! = complement
+   end each equation with ;
+
+EQN file (ABC)
+
+   INORDER = a b c d;
+   OUTORDER = f3;
+   f1 = (!a+b);
+   f2 = !(c*d);
+   f3 = (f1*!f2)+(!f1*f2);
+
+blif file generated from EQN (ABC) ----------
+
+# Benchmark "example" written by ABC on Fri Mar 25 21:20:59 2011
+   .model example
+   .inputs a b c d
+   .outputs f3
+   .names a b n5
+   10 0
+   .names c d n6
+   11 0
+   .names n5 n6 f3
+   01 1
+   10 1
+   .end
+
+---------  S I S ---------------------
+
+EQN format (SIS):
+
+   * = AND
+   + = OR
+   ^ = XOR
+   ! (or ') = complement
+   end each equation with ;
+
+EQN file (SIS) 
+
+   f1 = !a + b;
+   f2 = (c*d)';
+   f3 = f1^f2 ;
+
+blif file generated from EQN (SIS) ----------
+
+   .model example.eqn
+   .inputs a b c d
+   .outputs f3
+   .names a b f1
+   0- 1
+   -1 1
+   .names c d f2
+   0- 1
+   -0 1
+   .names f1 f2 f3
+   01 1
+   10 1
+   .end
+
+-----------------------------------------------
+
+
+abc 01> read_eqn file.eqn
+abc 02> write_blif file.blif

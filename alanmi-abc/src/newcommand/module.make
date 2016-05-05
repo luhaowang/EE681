@@ -1,0 +1,1 @@
+SRC +=	src/newcommand/newcommand.c

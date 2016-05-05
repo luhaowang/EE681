@@ -1,0 +1,15 @@
+# Benchmark "examples/eqn2" written by ABC on Wed May  4 14:59:18 2016
+.model examples/eqn2
+.inputs a b c d e
+.outputs o
+.names b c p
+11 1
+.names p d f1
+11 1
+.names p e f2
+11 1
+.names f1 f2 f3
+00 0
+.names a f3 o
+00 0
+.end

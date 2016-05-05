@@ -1,0 +1,5 @@
+INORDER = x y z;
+OUTORDER = o;
+f1 = x*y;
+f2 = x*z;
+o = !f1*!f2;

@@ -1,0 +1,11 @@
+# Benchmark "examples/eqn1" written by ABC on Wed May  4 14:03:57 2016
+.model examples/eqn1
+.inputs a b c d
+.outputs f3
+.names a b f1
+00 1
+.names c f2
+0 1
+.names f1 f2 f3
+11 1
+.end

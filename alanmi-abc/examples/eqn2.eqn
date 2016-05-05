@@ -1,0 +1,7 @@
+INORDER = a b c d e;
+OUTORDER = o;
+p = b*c;
+f1 = p*d;
+f2 = p*e;
+f3 = f1 + f2;
+o = a + f3;
