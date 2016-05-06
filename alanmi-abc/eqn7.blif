@@ -1,0 +1,13 @@
+# Benchmark "examples/eqn7" written by ABC on Thu May  5 14:58:36 2016
+.model examples/eqn7
+.inputs x y z d
+.outputs o p
+.names x y f1
+11 1
+.names f1 p
+1 1
+.names z d f2
+11 1
+.names f1 f2 o
+11 1
+.end

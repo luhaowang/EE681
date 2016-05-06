@@ -1,0 +1,6 @@
+INORDER = x y z d;
+OUTORDER = o p;
+f1 = x*y;
+p = f1;
+f2 = z*d;
+o = f1*f2;

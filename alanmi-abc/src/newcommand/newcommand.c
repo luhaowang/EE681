@@ -78,27 +78,25 @@ void newcommand_End( Abc_Frame_t * pAbc )
 Abc_Ntk_t * My_Command_Associative(Abc_Ntk_t * pNtk)
 {// check abc.h and abcNtk.c(Abc_ntkDup, duplication) freeXXX
 	//a new network to return
-    printf("inside the My_Command_Associative\n");
+  printf("inside the My_Command_Associative\n");
 	Abc_Ntk_t * new_pNtk;
 	Abc_Obj_t * pObj;
 
 	int i, j,k,m;
-    int changed = 0;
+  int changed = 0;
 	//check partial nodes satisfying a certain associative law
 	Abc_NtkForEachObj( pNtk, pObj, i)
 	{
         //printf("Node ID: %d \n", Abc_ObjId(pObj));
         //printf("FanInNum: %d \n",Abc_ObjFaninNum(pObj));
 
-        if(changed <1 && Abc_ObjFaninNum(pObj) == 2 && !Abc_ObjFaninC0(pObj) && !Abc_ObjFaninC1(pObj) )
+        if(changed <1 && Abc_ObjFaninNum(pObj) == 2 )
         {
             Abc_Obj_t * pFanin_0 = Abc_ObjFanin0(pObj);
             Abc_Obj_t * pFanin_1 = Abc_ObjFanin1(pObj);
-            // (x*y)*z => x*(y*z)
-            if(changed <1 && Abc_ObjFaninNum(pFanin_0) == 2 && !Abc_ObjFaninC0(pFanin_0) && !Abc_ObjFaninC1(pFanin_0) ) // (x*y)*z => x*(y*z)
+            if(changed <1 && Abc_ObjFaninNum(pFanin_0) == 2 ) // x*(y*z) => (x*y)*z
             {
-               printf("1st Condition, Node ID: %d\n",Abc_ObjId(pObj) );
-               printf("Abc_ObjFaninNum(pFanin_0): Node ID: %d\n",Abc_ObjId(pFanin_0) );
+               //printf("2nd Condition, Node ID: %d\n",Abc_ObjId(pObj) );
                Abc_Obj_t * tempObj;
                Abc_Obj_t * pFanin_0_0 = Abc_ObjFanin0(pFanin_0);
                Abc_Obj_t * pFanin_0_1 = Abc_ObjFanin1(pFanin_0);
@@ -110,82 +108,38 @@ Abc_Ntk_t * My_Command_Associative(Abc_Ntk_t * pNtk)
 
                for (j=0; j<FanoutNum; j++)
                {
-                tempObj = Abc_ObjFanout(pObj, j);
+                tempObj = Abc_ObjFanout(pObj, 0);
+                printf("Deleting FandIn %d of %d\n",Abc_ObjId(tempObj),Abc_ObjId(pObj) );
                 Abc_ObjDeleteFanin( tempObj , pObj );
                 Abc_ObjAddFanin( tempObj, NewParentNode);
                }
-               printf("ParentNode Created and connected\n" );
                Abc_ObjAddFanin(NewParentNode,pFanin_0_0 );
+               NewParentNode->fCompl0 = pFanin_0->fCompl0;
                Abc_ObjAddFanin( NewParentNode, NewChildNode );
                Abc_ObjAddFanin( NewChildNode, pFanin_0_1);
+               NewChildNode->fCompl0 = pFanin_0->fCompl1;
                Abc_ObjAddFanin(NewChildNode,pFanin_1 );
-               printf("ChildNode Created and connected\n" );
+               NewChildNode->fCompl1 = pObj->fCompl1;
+               
 
-               printf("Abc_ObjFanoutNum(pFanin_0): %d\n",Abc_ObjFanoutNum(pFanin_0) );
                if(Abc_ObjFanoutNum(pFanin_0)>1)
                {
-               		printf("pFanin_0 's FanOut > 1\n" );
+               		printf("Abc_ObjFanoutNum(pFanin_1) > 1\n" );
                }
                else
                {
-               	   Abc_ObjForEachFanin(pFanin_0,tempObj, k )
+               	 Abc_ObjForEachFanin(pFanin_0,tempObj, k )
 	               {
 	                	Abc_ObjDeleteFanin(pFanin_0,tempObj);
 	               }                 
 	               Abc_NtkDeleteObj(pFanin_0);      	
                }
-               Abc_ObjForEachFanin(pObj,tempObj, k )
-               {
-                	Abc_ObjDeleteFanin(pObj,tempObj);
-               }  
-               Abc_NtkDeleteObj(pObj);
-               printf("pObj disconnected\n" );
-	
-               changed++;
-            }
-            if(changed <1 && Abc_ObjFaninNum(pFanin_1) == 2 && !Abc_ObjFaninC0(pFanin_1) && !Abc_ObjFaninC1(pFanin_1) ) // x*(y*z) => (x*y)*z
-            {
-               printf("2nd Condition, Node ID: %d\n",Abc_ObjId(pObj) );
-               Abc_Obj_t * tempObj;
-               Abc_Obj_t * pFanin_1_0 = Abc_ObjFanin0(pFanin_1);
-               Abc_Obj_t * pFanin_1_1 = Abc_ObjFanin1(pFanin_1);
-
-               Abc_Obj_t * NewParentNode = Abc_NtkDupObj(pNtk, pObj, 1);
-               Abc_Obj_t * NewChildNode = Abc_NtkDupObj(pNtk, pFanin_1, 1);
-
-               int FanoutNum = Abc_ObjFanoutNum(pObj);
-
-               for (j=0; j<FanoutNum; j++)
-               {
-                tempObj = Abc_ObjFanout(pObj, j);
-                Abc_ObjDeleteFanin( tempObj , pObj );
-                Abc_ObjAddFanin( tempObj, NewParentNode);
-               }
-
-               Abc_ObjAddFanin( NewParentNode, NewChildNode );
-               Abc_ObjAddFanin( NewChildNode, pFanin_1_1);
-               Abc_ObjAddFanin(NewChildNode,pFanin_0 );
-               Abc_ObjAddFanin(NewParentNode,pFanin_1_0 );
-
-               if(Abc_ObjFanoutNum(pFanin_1)>1)
-               {
-               		//nothing
-               }
-               else
-               {
-               	   Abc_ObjForEachFanin(pFanin_1,tempObj, k )
-	               {
-	                	Abc_ObjDeleteFanin(pFanin_1,tempObj);
-	               }                 
-	               Abc_NtkDeleteObj(pFanin_1);      	
-               }
 	
                Abc_ObjForEachFanin(pObj,tempObj, k )
                {
                 	Abc_ObjDeleteFanin(pObj,tempObj);
                }  
                Abc_NtkDeleteObj(pObj);
-
                changed++;
             }
         }
@@ -263,7 +217,7 @@ Abc_Ntk_t * My_Command_Distributive(Abc_Ntk_t * pNtk)
 
                 for (j=0; j<FanoutNum; j++)
                 {
-                    tempObj = Abc_ObjFanout(pObj, j);
+                    tempObj = Abc_ObjFanout(pObj, 0);
                     Abc_ObjDeleteFanin( tempObj , pObj );
                     Abc_ObjAddFanin( tempObj, NewParentNode);
                 }
@@ -333,11 +287,11 @@ int Abc_CommandNewCommand ( Abc_Frame_t * pAbc, int argc, char ** argv )
 	Abc_Ntk_t * pNtk, * pNtkRes;
 	
 	int c;
-    int fAllNodes;
-    int fRecord;
-    int fCleanup;
+  int fAllNodes;
+  int fRecord;
+  int fCleanup;
 
-    int limit= 5;  // Switch for controlling how many times each function runs
+  int limit= 50;  // Switch for controlling how many times each function runs
 	int count;
 	
 	
@@ -423,7 +377,7 @@ int Abc_CommandNewCommand ( Abc_Frame_t * pAbc, int argc, char ** argv )
 		pNtk= My_Command_Associative(pNtk);
 	}
 
-	for(count = 11;count < limit; count ++)
+	for(count = 0;count < limit; count ++)
 	{
 		pNtk = My_Command_Distributive(pNtk);
 	}

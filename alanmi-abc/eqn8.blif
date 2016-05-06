@@ -1,0 +1,9 @@
+# Benchmark "examples/eqn8" written by ABC on Thu May  5 16:02:13 2016
+.model examples/eqn8
+.inputs x y z
+.outputs o
+.names x y f1
+00 1
+.names z f1 o
+01 1
+.end
