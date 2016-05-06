@@ -1,11 +1,13 @@
-# Benchmark "examples/eqn6" written by ABC on Wed May  4 19:46:17 2016
+# Benchmark "examples/eqn6" written by ABC on Thu May  5 19:13:11 2016
 .model examples/eqn6
 .inputs x y z
-.outputs o
+.outputs o p
 .names x y f1
-11 1
+00 1
 .names x z f2
-11 1
+00 1
+.names f2 p
+1 1
 .names f1 f2 o
 00 1
 .end

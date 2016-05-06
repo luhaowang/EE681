@@ -1,4 +1,5 @@
 INORDER = x y z;
 OUTORDER = o;
 f1 = !x*!y;
+f2 = 
 o = !z*f1;

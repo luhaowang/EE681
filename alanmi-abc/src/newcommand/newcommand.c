@@ -109,7 +109,7 @@ Abc_Ntk_t * My_Command_Associative(Abc_Ntk_t * pNtk)
                for (j=0; j<FanoutNum; j++)
                {
                 tempObj = Abc_ObjFanout(pObj, 0);
-                printf("Deleting FandIn %d of %d\n",Abc_ObjId(tempObj),Abc_ObjId(pObj) );
+                //printf("Deleting FandIn %d of %d\n",Abc_ObjId(tempObj),Abc_ObjId(pObj) );
                 Abc_ObjDeleteFanin( tempObj , pObj );
                 Abc_ObjAddFanin( tempObj, NewParentNode);
                }
@@ -124,7 +124,7 @@ Abc_Ntk_t * My_Command_Associative(Abc_Ntk_t * pNtk)
 
                if(Abc_ObjFanoutNum(pFanin_0)>1)
                {
-               		printf("Abc_ObjFanoutNum(pFanin_1) > 1\n" );
+               		//printf("Abc_ObjFanoutNum(pFanin_1) > 1\n" );
                }
                else
                {
@@ -140,6 +140,7 @@ Abc_Ntk_t * My_Command_Associative(Abc_Ntk_t * pNtk)
                 	Abc_ObjDeleteFanin(pObj,tempObj);
                }  
                Abc_NtkDeleteObj(pObj);
+               printf("\t Associative is making change....\n");
                changed++;
             }
         }
@@ -163,6 +164,9 @@ Abc_Ntk_t * My_Command_Distributive(Abc_Ntk_t * pNtk)
     int i, j,k,m;
     int same_node_ID = -1;
     int changed = 0;
+    int x_compl = 0;
+    int y_compl = 0;
+    int z_compl = 0;
     //check partial nodes satisfying a certain associative law
     Abc_NtkForEachObj( pNtk, pObj, i)
     {
@@ -170,10 +174,10 @@ Abc_Ntk_t * My_Command_Distributive(Abc_Ntk_t * pNtk)
         {
             Abc_Obj_t * pFanin_0 = Abc_ObjFanin0(pObj);
             Abc_Obj_t * pFanin_1 = Abc_ObjFanin1(pObj);
-            if(changed < 1 && Abc_ObjFaninNum(pFanin_0) == 2 && !Abc_ObjFaninC0(pFanin_0) && !Abc_ObjFaninC1(pFanin_0) )
+            if(changed < 1 && Abc_ObjFaninNum(pFanin_0) == 2)
             {
                 //printf("Fandin_0 of Node(%d) is Node(%d) \n", Abc_ObjId(pObj),Abc_ObjId(pFanin_0));
-                if(changed ==0 && Abc_ObjFaninNum(pFanin_1) == 2 && !Abc_ObjFaninC0(pFanin_1) && !Abc_ObjFaninC1(pFanin_1) )
+                if(changed ==0 && Abc_ObjFaninNum(pFanin_1) == 2)
                 {
                     //printf("Fandin_1 of Node(%d) is Node(%d) \n", Abc_ObjId(pObj),Abc_ObjId(pFanin_1));
                     Abc_ObjForEachFanin( pFanin_0, pFanin_t1, k )
@@ -182,8 +186,38 @@ Abc_Ntk_t * My_Command_Distributive(Abc_Ntk_t * pNtk)
                         {
                             if(Abc_ObjId(pFanin_t1) == Abc_ObjId(pFanin_t2) )
                             {
+                              if((k==0 && m==0 && pFanin_0->fCompl0 == pFanin_1->fCompl0 ) )
+                              {
                                 same_node_ID = Abc_ObjId(pFanin_t1);
                                 pObj_x = pFanin_t1;
+                                x_compl = pFanin_0->fCompl0;
+                                y_compl = pFanin_0->fCompl1;
+                                z_compl = pFanin_1->fCompl1;
+                              }
+                              if((k==1 && m==0 && pFanin_0->fCompl1 == pFanin_1->fCompl0 ) ) 
+                              {
+                                same_node_ID = Abc_ObjId(pFanin_t1);
+                                pObj_x = pFanin_t1;
+                                x_compl = pFanin_0->fCompl1;
+                                y_compl = pFanin_0->fCompl0;
+                                z_compl = pFanin_1->fCompl1;
+                              }
+                              if((k==0 && m==1 && pFanin_0->fCompl0 == pFanin_1->fCompl1 ) )
+                              {
+                                same_node_ID = Abc_ObjId(pFanin_t1);
+                                pObj_x = pFanin_t1;
+                                x_compl = pFanin_0->fCompl0;
+                                y_compl = pFanin_0->fCompl1;
+                                z_compl = pFanin_1->fCompl0;
+                              }
+                              if((k==1 && m==1 && pFanin_0->fCompl1 == pFanin_1->fCompl1 ) )
+                              {
+                                same_node_ID = Abc_ObjId(pFanin_t1);
+                                pObj_x = pFanin_t1;
+                                x_compl = pFanin_0->fCompl1;
+                                y_compl = pFanin_0->fCompl0;
+                                z_compl = pFanin_1->fCompl0;
+                              }
                             }
                         }
                     }
@@ -192,6 +226,7 @@ Abc_Ntk_t * My_Command_Distributive(Abc_Ntk_t * pNtk)
             //printf("Same Node ID: %d\n", same_node_ID);
             if(same_node_ID != -1)
             {
+                
                 Abc_ObjForEachFanin( pFanin_0, pFanin_t1, k )
                 {
                     if(Abc_ObjId(pFanin_t1) != same_node_ID)
@@ -243,36 +278,44 @@ Abc_Ntk_t * My_Command_Distributive(Abc_Ntk_t * pNtk)
                 // begin to create and connect new network
                 Abc_ObjAddFanin( NewParentNode, pObj_x );
                 Abc_ObjAddFanin( NewParentNode, NewChildNode );
-                NewParentNode->fCompl0 = 0;
+                NewParentNode->fCompl0 = x_compl;
                 NewParentNode->fCompl1 = 1;
-                // Abc_ObjForEachFanin(NewParentNode,tempObj,k)
-                // {
-                //     if(Abc_ObjId(tempObj) == Abc_ObjId(NewChildNode) )
-                //     {
-                //         if(k==0) NewParentNode->fCompl0 = 1;
-                //         if(k==1) NewParentNode->fCompl1 = 1;
-                //         if(k>1) printf("Error for the Fanin!\n");
-                //     }
-                // }
                 Abc_ObjAddFanin( NewChildNode, pObj_y);
                 Abc_ObjAddFanin(NewChildNode,pObj_z );
-                NewChildNode->fCompl0 = 1;
-                NewChildNode->fCompl1 = 1;
+                NewChildNode->fCompl0 = y_compl? 0:1;
+                NewChildNode->fCompl1 = z_compl? 0:1;
+                if(Abc_ObjFanoutNum(pFanin_0) > 1)
+                {
+                  //do nothing
+
+                }
+                else
+                {
+                  Abc_ObjForEachFanin(pFanin_0,tempObj, k )
+                  {
+                    Abc_ObjDeleteFanin(pFanin_0,tempObj);
+                  }
+                  Abc_NtkDeleteObj(pFanin_0);
+                }
+                if(Abc_ObjFanoutNum(pFanin_1) > 1)
+                {
+                  //do nothing
+
+                }
+                else
+                {
+                  Abc_ObjForEachFanin(pFanin_1,tempObj, k )
+                  {
+                    Abc_ObjDeleteFanin(pFanin_1,tempObj);
+                  }
+                  Abc_NtkDeleteObj(pFanin_1);
+                }
                 Abc_ObjForEachFanin(pObj,tempObj, k )
                 {
-                	Abc_ObjDeleteFanin(pObj,tempObj);
-                }
-                Abc_ObjForEachFanin(pFanin_0,tempObj, k )
-                {
-                	Abc_ObjDeleteFanin(pFanin_0,tempObj);
-                }
-                Abc_ObjForEachFanin(pFanin_1,tempObj, k )
-                {
-                	Abc_ObjDeleteFanin(pFanin_1,tempObj);
+                  Abc_ObjDeleteFanin(pObj,tempObj);
                 }
                 Abc_NtkDeleteObj(pObj);
-                Abc_NtkDeleteObj(pFanin_0);
-                Abc_NtkDeleteObj(pFanin_1);
+                printf("\t Distributive is making chaging\n");
                 changed++;
             }
         }

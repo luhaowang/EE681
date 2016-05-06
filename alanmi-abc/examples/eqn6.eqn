@@ -1,5 +1,6 @@
 INORDER = x y z;
-OUTORDER = o;
-f1 = x*y;
-f2 = x*z;
+OUTORDER = o p;
+f1 = !x*!y;
+f2 = !x*!z;
+p = f2;
 o = !f1*!f2;
